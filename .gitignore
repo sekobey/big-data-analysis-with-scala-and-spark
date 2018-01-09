@@ -1,2 +1,10 @@
+**/.idea/**
+**/target/**
+**/project/**
+*.jar
 *.class
-*.log
+*.war
+*.ear
+*.zip
+*.rar
+*.DS_Store
