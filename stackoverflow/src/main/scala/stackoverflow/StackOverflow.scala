@@ -181,16 +181,16 @@ class StackOverflow extends Serializable {
 
   /** Main kmeans computation */
   @tailrec final def kmeans(means: Array[(Int, Int)], vectors: RDD[(Int, Int)], iter: Int = 1, debug: Boolean = false): Array[(Int, Int)] = {
-    val newMeans = vectors
+    val changedMeans = vectors
       .map(vector => (findClosest(vector, means), vector))
       .groupByKey()
       .mapValues(it => averageVectors(it))
       .sortByKey()
-      .map { case (_, v) => v }
-      .collect
+      .collect.toMap withDefaultValue (-1,-1)
 
-    println(s"Means length: ${means.length}")
-    println(s"New means length: ${newMeans.length}")
+    val newMeans = (for (i <- 0 until means.length) yield {
+      if (changedMeans(i) != (-1,-1)) changedMeans(i) else means(i)
+    }).toArray
 
     val distance = euclideanDistance(means, newMeans)
 
@@ -291,7 +291,7 @@ class StackOverflow extends Serializable {
     val median = closestGrouped.mapValues { vs =>
       val maxLangIndex = vs.maxBy(_._1)._1
       val langLabel: String = langs(maxLangIndex / langSpread) // most common language in the cluster
-      val langPercent: Double = vs.filter(_._1 == maxLangIndex).size.asInstanceOf[Double] / vs.size // percent of the questions in the most common language
+      val langPercent: Double = (vs.filter(_._1 == maxLangIndex).size.asInstanceOf[Double] / vs.size) * 100 // percent of the questions in the most common language
       val clusterSize: Int = vs.size
       val medianScore: Int = vs.toList(clusterSize / 2)._2
 
