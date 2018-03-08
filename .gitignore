@@ -1,6 +1,5 @@
 **/.idea/**
 **/target/**
-**/project/**
 *.jar
 *.class
 *.war
