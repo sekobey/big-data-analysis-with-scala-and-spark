@@ -90,13 +90,14 @@ object TimeUsage {
     *      “t10”, “t12”, “t13”, “t14”, “t15”, “t16” and “t18” (those which are not part of the previous groups only).
     */
   def classifiedColumns(columnNames: List[String]): (List[Column], List[Column], List[Column]) = {
-    def createColumns(prefixes: String*): List[Column] = {
-      prefixes.flatMap(prefix => columnNames.filter(_.startsWith(prefix)).map(new Column(_))).toList
+    def createColumns(searchableColumns: List[String], prefixes: String*): List[Column] = {
+      prefixes.flatMap(prefix => searchableColumns.filter(_.startsWith(prefix)).map(new Column(_))).toList
     }
 
-    val primaryNeeds = createColumns("t01", "t03", "t11", "t1801", "t1803")
-    val work = createColumns("t05", "t1805")
-    val other = createColumns("t02", "t04", "t06", "t07", "t08", "t09", "t10", "t12", "t13", "t14", "t15", "t16", "t18")
+    val primaryNeeds = createColumns(columnNames, "t01", "t03", "t11", "t1801", "t1803")
+    val work = createColumns(columnNames, "t05", "t1805")
+    val otherSearchableColumnNames = columnNames.filterNot(col => col.startsWith("t1801").||(col.startsWith("t1803")).||(col.startsWith("t1805")))
+    val other = createColumns(otherSearchableColumnNames, "t02", "t04", "t06", "t07", "t08", "t09", "t10", "t12", "t13", "t14", "t15", "t16", "t18")
     (primaryNeeds, work, other)
   }
 
